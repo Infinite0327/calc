@@ -21,10 +21,27 @@ func pingHandler(w http.ResponseWriter,r *http.Request){
 		http.Error(w, "请求格式不对", http.StatusBadRequest)
 		return
 	}
-	fmt.Println("成功获取前端请求：", req.Expression)
-	fakeResult := 10000
-	resp := CalcResponse{
-		Answer: fakeResult,
+
+	var num1, num2,realResult int
+	var operator string
+	_, err = fmt.Sscanf(req.Expression, "%d %s %d", &num1, &operator, &num2)
+	
+	if err != nil {
+		fmt.Println("解析表达式失败:", err)
+		return 
+	} 
+
+	switch operator{
+	case "+":realResult=num1+num2
+	case "-":realResult=num1-num2
+	case "*":realResult=num1*num2
+	case "/":realResult=num1/num2
+	default:
+		http.Error(w, "不支持的运算符", http.StatusBadRequest)
+		return
+	}
+	resp:=CalcResponse{
+		Answer:realResult,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
